@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trivy Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Trivy Vulnerability Dashboard</h1>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="report" accept="application/json">
+        <button type="submit">Upload Trivy Report</button>
+    </form>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class="flashes">
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    <h2>Uploaded Reports</h2>
+    <ul>
+    {% for report in reports %}
+        <li>{{ report.filename }} ({{ report.uploaded.strftime('%Y-%m-%d %H:%M:%S') }})</li>
+    {% else %}
+        <li>No reports uploaded yet.</li>
+    {% endfor %}
+    </ul>
+    <h2>Vulnerability Summary</h2>
+    <canvas id="vulnChart" width="400" height="200"></canvas>
+    <script>
+    // Prepare data for chart
+    const reports = {{ reports|tojson }};
+    let severityCounts = {"CRITICAL":0, "HIGH":0, "MEDIUM":0, "LOW":0, "UNKNOWN":0};
+    reports.forEach(r => {
+        if (r.data.Results) {
+            r.data.Results.forEach(res => {
+                if (res.Vulnerabilities) {
+                    res.Vulnerabilities.forEach(vuln => {
+                        let sev = vuln.Severity || 'UNKNOWN';
+                        if (severityCounts[sev] !== undefined) severityCounts[sev]++;
+                        else severityCounts['UNKNOWN']++;
+                    });
+                }
+            });
+        }
+    });
+    const ctx = document.getElementById('vulnChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(severityCounts),
+            datasets: [{
+                label: 'Vulnerabilities',
+                data: Object.values(severityCounts),
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(255, 159, 64, 0.7)',
+                    'rgba(255, 205, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(201, 203, 207, 0.7)'
+                ]
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+    </script>
+</body>
+</html>
