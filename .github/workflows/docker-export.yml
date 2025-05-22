@@ -1,0 +1,35 @@
+name: Build and Export Docker Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-export:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t trivy-dashboard:latest .
+
+      - name: Save Docker image as tar
+        run: |
+          docker save trivy-dashboard:latest -o trivy-dashboard.tar
+
+      - name: Upload Docker image tar as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-dashboard-tar
+          path: trivy-dashboard.tar
+
+      - name: Show import command
+        run: |
+          echo "To import this image on another machine, run:"
+          echo "docker load -i trivy-dashboard.tar"
