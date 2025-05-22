@@ -57,6 +57,47 @@ To find your Linux machine's IP address, run:
 hostname -I
 ```
 
+## Running Docker Container and Accessing the App
+
+1. **Run the Docker container with a volume mount**
+   Replace `C:\Users\uday\Desktop\trivy` with your actual code directory if different.
+   ```powershell
+   docker run -d -p 5000:5000 -v C:\Users\uday\Desktop\trivy:/app trivy-dashboard:latest
+   ```
+   - `-d` runs the container in detached mode.
+   - `-p 5000:5000` maps port 5000 on your host to port 5000 in the container.
+   - `-v ...:/app` mounts your code folder into the container (so uploads and code changes are reflected).
+
+2. **Find your computer’s IP address**
+   In PowerShell, run:
+   ```powershell
+   ipconfig
+   ```
+   Look for the IPv4 Address (e.g., 192.168.1.100).
+
+3. **Access the app from another device on your network**
+   Open a browser and go to:
+   ```
+   http://<your-ip>:5000/
+   ```
+   (Replace `<your-ip>` with your actual IP address.)
+
+Your Flask dashboard should now be accessible from any device on the same network!
+
+## Exporting and Importing the Docker Image
+
+To export the Docker image as a tar file (from the machine where you built it):
+```powershell
+docker save trivy-dashboard:latest -o trivy-dashboard.tar
+```
+
+To import the Docker image on another machine (after copying/extracting the tar file):
+```powershell
+docker load -i trivy-dashboard.tar
+```
+
+You can then run the container as described above.
+
 ## Usage
 - Use the upload form to add Trivy JSON reports.
 - Uploaded reports are listed with their upload time.
