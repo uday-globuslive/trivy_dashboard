@@ -33,6 +33,30 @@ python app.py
 ### 3. Open in your browser
 Visit [http://127.0.0.1:5000/](http://127.0.0.1:5000/) to access the dashboard.
 
+## Running on Linux with a Virtual Environment
+
+1. Create and activate a virtual environment:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+2. Install dependencies:
+   ```bash
+   pip install flask
+   ```
+3. Run the application:
+   ```bash
+   python app.py
+   ```
+4. Access the dashboard from your browser:
+   - On the same machine: http://127.0.0.1:5000/
+   - On your local network: http://<your-linux-ip>:5000/
+
+To find your Linux machine's IP address, run:
+```bash
+hostname -I
+```
+
 ## Usage
 - Use the upload form to add Trivy JSON reports.
 - Uploaded reports are listed with their upload time.
